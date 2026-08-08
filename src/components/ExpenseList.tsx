@@ -42,10 +42,11 @@ export function ExpenseList({
 
   return (
     <ul className="space-y-2">
-      {sortByDateDesc(expenses).map((expense) => (
+      {sortByDateDesc(expenses).map((expense, index) => (
         <li
           key={expense.id}
-          className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm"
+          style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
+          className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm transition-shadow duration-200 hover:shadow-md animate-in fade-in slide-in-from-bottom-1 fill-mode-both duration-300"
         >
           <span
             className={`rounded-full px-2.5 py-1 text-xs font-medium ${CATEGORY_CHIP[expense.category]}`}
