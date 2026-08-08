@@ -7,10 +7,14 @@
       "config": {
         "distDir": "dist"
       }
+    },
+    {
+      "src": "src/server.ts",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "\\/(.*)", "dest": "/src/server.ts" }
   ]
 }
