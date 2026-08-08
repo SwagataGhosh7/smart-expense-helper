@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import ExpenseAnalytics from "./ExpenseAnalytics";
 
 const CATEGORIES = ["Food", "Transport", "Bills", "Shopping", "Health", "Other"] as const;
 
@@ -9,7 +10,7 @@ type Expense = {
   amount: number;
   category: Category;
   date: string;
-  note: string;
+  note?: string;
 };
 
 const STORAGE_KEY = "smart-expense-helper.expenses.v1";
@@ -45,12 +46,12 @@ function loadExpenses(): Expense[] {
     if (!Array.isArray(parsed)) return [];
     return parsed.filter(
       (item): item is Expense =>
-        item &&
+        !!item &&
         typeof item.id === "string" &&
         typeof item.amount === "number" &&
         typeof item.date === "string" &&
         CATEGORIES.includes(item.category) &&
-        typeof item.note === "string",
+        (typeof item.note === "string" || item.note === undefined),
     );
   } catch {
     return [];
@@ -109,7 +110,7 @@ export default function App() {
       amount: editingExpense.amount,
       category: editingExpense.category,
       date: editingExpense.date,
-      note: editingExpense.note,
+      note: editingExpense.note ?? "",
     });
   }, [editingExpense]);
 
@@ -120,9 +121,7 @@ export default function App() {
     if (editingId) {
       setExpenses((current) =>
         sortByDateDesc(
-          current.map((expense) =>
-            expense.id === editingId ? { ...expense, ...form } : expense,
-          ),
+          current.map((expense) => (expense.id === editingId ? { ...expense, ...form } : expense)),
         ),
       );
     } else {
@@ -145,25 +144,27 @@ export default function App() {
     <div className="container">
       <header>
         <h1 className="page-title">Smart Expense Helper</h1>
-        <p className="page-subtitle">
-          Track expenses in rupees with local browser storage and simple summaries.
-        </p>
+        <p className="page-subtitle">Track expenses in rupees with local browser storage and simple summaries.</p>
       </header>
 
-      <section className="card stats">
-        <div className="stat">
-          <p className="stat-label">Total spent</p>
-          <p className="stat-value">{rupeeFormatter.format(totalAmount(expenses))}</p>
+      <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 18 }}>
+        <div style={{ flex: 1 }}>
+          <section className="card stats">
+            <div className="stat">
+              <p className="stat-label">Total spent</p>
+              <p className="stat-value">{rupeeFormatter.format(totalAmount(expenses))}</p>
+            </div>
+            <div className="stat">
+              <p className="stat-label">This month</p>
+              <p className="stat-value">{rupeeFormatter.format(monthTotal(expenses))}</p>
+            </div>
+            <div className="stat">
+              <p className="stat-label">Entries</p>
+              <p className="stat-value">{expenses.length}</p>
+            </div>
+          </section>
         </div>
-        <div className="stat">
-          <p className="stat-label">This month</p>
-          <p className="stat-value">{rupeeFormatter.format(monthTotal(expenses))}</p>
-        </div>
-        <div className="stat">
-          <p className="stat-label">Entries</p>
-          <p className="stat-value">{expenses.length}</p>
-        </div>
-      </section>
+      </div>
 
       <section className="card">
         <form onSubmit={handleSubmit}>
@@ -176,23 +177,13 @@ export default function App() {
                 min="0"
                 step="0.01"
                 value={form.amount}
-                onChange={(event) =>
-                  setForm((current) => ({ ...current, amount: Number(event.target.value) }))
-                }
+                onChange={(event) => setForm((current) => ({ ...current, amount: Number(event.target.value) }))}
               />
             </label>
+
             <label className="label">
               Category
-              <select
-                className="select"
-                value={form.category}
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    category: event.target.value as Category,
-                  }))
-                }
-              >
+              <select className="select" value={form.category} onChange={(event) => setForm((current) => ({ ...current, category: event.target.value as Category }))}>
                 {CATEGORIES.map((category) => (
                   <option key={category} value={category}>
                     {category}
@@ -200,42 +191,24 @@ export default function App() {
                 ))}
               </select>
             </label>
+
             <label className="label">
               Date
-              <input
-                className="input"
-                type="date"
-                value={form.date}
-                onChange={(event) =>
-                  setForm((current) => ({ ...current, date: event.target.value }))
-                }
-              />
+              <input className="input" type="date" value={form.date} onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))} />
             </label>
-            <label className="label" style={{ gridColumn: "1 / -1" }}>
+
+            <label className="label" style={{ gridColumn: '1 / -1' }}>
               Note
-              <textarea
-                className="textarea"
-                value={form.note}
-                onChange={(event) =>
-                  setForm((current) => ({ ...current, note: event.target.value }))
-                }
-              />
+              <textarea className="textarea" value={form.note} onChange={(event) => setForm((current) => ({ ...current, note: event.target.value }))} />
             </label>
           </div>
 
           <div className="actions">
             <button className="button-primary" type="submit">
-              {editingId ? "Save expense" : "Add expense"}
+              {editingId ? 'Save expense' : 'Add expense'}
             </button>
             {editingId ? (
-              <button
-                className="button-danger"
-                type="button"
-                onClick={() => {
-                  setEditingId(null);
-                  setForm(defaultExpense);
-                }}
-              >
+              <button className="button-danger" type="button" onClick={() => { setEditingId(null); setForm(defaultExpense); }}>
                 Cancel edit
               </button>
             ) : null}
@@ -244,40 +217,36 @@ export default function App() {
       </section>
 
       <section className="card expense-list">
-        {expenses.length === 0 ? (
-          <div className="empty-state">No expenses yet. Add one to get started.</div>
-        ) : (
-          expenses.map((expense) => (
-            <article key={expense.id} className="expense-item">
-              <div className="expense-header">
-                <div>
-                  <p className="expense-title">{rupeeFormatter.format(expense.amount)}</p>
-                  <div className={`chip chip-${expense.category}`}>{expense.category}</div>
+          {expenses.length === 0 ? (
+            <div className="empty-state">No expenses yet. Add one to get started.</div>
+          ) : (
+            expenses.map((expense) => (
+              <article key={expense.id} className="expense-item">
+                <div className="expense-header">
+                  <div>
+                    <p className="expense-title">{rupeeFormatter.format(expense.amount)}</p>
+                    <div className={`chip chip-${expense.category}`}>{expense.category}</div>
+                  </div>
+                  <div className="expense-meta">
+                    <span>{formatDate(expense.date)}</span>
+                  </div>
                 </div>
-                <div className="expense-meta">
-                  <span>{formatDate(expense.date)}</span>
+                {expense.note ? <p>{expense.note}</p> : null}
+                <div className="actions">
+                  <button className="button-primary" type="button" onClick={() => setEditingId(expense.id)}>
+                    Edit
+                  </button>
+                  <button className="button-danger" type="button" onClick={() => handleDelete(expense.id)}>
+                    Delete
+                  </button>
                 </div>
-              </div>
-              {expense.note ? <p>{expense.note}</p> : null}
-              <div className="actions">
-                <button
-                  className="button-primary"
-                  type="button"
-                  onClick={() => setEditingId(expense.id)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="button-danger"
-                  type="button"
-                  onClick={() => handleDelete(expense.id)}
-                >
-                  Delete
-                </button>
-              </div>
-            </article>
-          ))
-        )}
+              </article>
+            ))
+          )}
+      </section>
+
+      <section className="card">
+        <ExpenseAnalytics expenses={expenses} />
       </section>
     </div>
   );
