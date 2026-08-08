@@ -56,11 +56,12 @@ export function ExpenseForm({
       return;
     }
     setError(null);
+    const note = draft.note.trim();
     onSubmit({
       amount: Math.round(amount * 100) / 100,
       category: draft.category,
       date: draft.date,
-      note: draft.note.trim() || undefined,
+      ...(note ? { note } : {}),
     });
     setDraft(emptyDraft());
   }
