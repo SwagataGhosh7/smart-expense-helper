@@ -18,6 +18,8 @@ src/
     ExpenseForm.tsx       add + edit form
     ExpenseList.tsx       list rows, edit/delete actions
     SummaryCards.tsx      month total, all-time total, entry count
+    ExpenseFilters.tsx    search + category/month chip filters
+    ExpenseAnalytics.tsx  Recharts donut, bar and trend charts
   lib/expenses.ts         types, storage, currency/date formatting
 ```
 
@@ -40,5 +42,7 @@ src/
 - New category: add it to `CATEGORIES`, add a matching entry in
   `CATEGORY_CHIP`, and add the chip tokens in `src/styles.css`.
 - New derived stat: compute it in `SummaryCards.tsx` from the `expenses` prop.
+- Charts: use Recharts and pass colors as `var(--token)` strings so charts follow
+  the theme; never pass hex values.
 - Moving to a real backend later: replace `loadExpenses`/`saveExpenses` in
   `src/lib/expenses.ts`; the components stay unchanged.

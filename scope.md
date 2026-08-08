@@ -16,13 +16,16 @@ with data stored only in the user's browser.
 - Empty state before the first expense
 - Amounts formatted as `₹1,250.00` using the `en-IN` locale
 - Persistence in browser localStorage; restored on reload
+- Analysis tab: top category, average spend per day, spend-by-category donut,
+  last-6-months bar chart and monthly trend line (Recharts)
+- Filters: search notes/category, category chips, month chips, clear filters
+- Tabbed interface with subtle entrance animations
 - Responsive, mobile-first layout
 
 ## Out of scope (v1)
 
-- Charts and analytics
 - Monthly budgets and budget alerts
-- Search, filtering, and CSV export
+- CSV export / import
 - User accounts, login, multi-device sync
 - Recurring expenses, income tracking, multiple currencies
 - Attachments or receipt photos
@@ -30,11 +33,9 @@ with data stored only in the user's browser.
 
 ## Possible next
 
-1. Filter by month and category
-2. Spend-by-category donut chart and monthly trend
-3. Monthly budget with progress indicator
-4. CSV export / import
-5. Cloud sync with accounts (would replace the localStorage layer only)
+1. Monthly budget with progress indicator
+2. CSV export / import
+3. Cloud sync with accounts (would replace the localStorage layer only)
 
 ## Constraints
 
